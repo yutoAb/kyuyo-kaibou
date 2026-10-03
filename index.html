@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>給与解剖｜あなたの給料はどこへ消えるのか — 手取り・税金・会社負担を1枚の図に</title>
+<meta name="description" content="年収を入れるだけで、給料が手取り・所得税・住民税・社会保険料にどう分解されるかをサンキー図で可視化。会社が負担している「見えない社会保険料」まで含めた本当のコストが分かります。無料・登録不要。" />
+<link rel="canonical" href="https://yutoab.github.io/kyuyo-kaibou/" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="給与解剖｜あなたの給料はどこへ消えるのか" />
+<meta property="og:description" content="手取り・税金・社会保険料・会社負担を1枚のサンキー図に。「会社が払う総額」とあなたの手取りの差、知っていますか?" />
+<meta property="og:url" content="https://yutoab.github.io/kyuyo-kaibou/" />
+<meta property="og:image" content="https://yutoab.github.io/kyuyo-kaibou/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<style>
+  :root {
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --line:#c3c2b7; --ring:rgba(11,11,11,.10); --accent:#2a78d6;
+    --c-emp:#4a3aa7; --c-sotax:#eb6834; --c-pension:#2a78d6; --c-jumin:#e87ba4;
+    --c-health:#008300; --c-koyo:#eda100; --c-tedori:#1baf7a;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Segoe UI",sans-serif; line-height:1.7; }
+  header { display:flex; align-items:center; gap:12px; padding:14px 20px;
+    border-bottom:1px solid var(--grid); background:var(--surface); }
+  header h1 { font-size:18px; margin:0; }
+  header h1 a { color:var(--ink); text-decoration:none; }
+  .gnav { margin-left:auto; display:flex; gap:16px; font-size:13px; }
+  .gnav a { color:var(--ink2); text-decoration:none; }
+  .gnav a:hover { color:var(--accent); }
+  main { max-width:980px; margin:0 auto; padding:24px 16px 48px; }
+  .lead { color:var(--ink2); font-size:15px; margin:4px 0 20px; }
+  .card { background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:18px; }
+
+  /* controls */
+  .controls { display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; margin-bottom:6px; }
+  .controls .field { display:flex; align-items:center; gap:10px; }
+  .controls label { font-size:13px; color:var(--ink2); }
+  input[type=range] { width:min(320px,60vw); accent-color:var(--accent); }
+  input[type=number] { width:90px; font-size:15px; padding:6px 8px; border:1px solid var(--line);
+    border-radius:8px; background:#fff; color:var(--ink); }
+  .toggle { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink2);
+    cursor:pointer; user-select:none; }
+  .toggle input { accent-color:var(--accent); width:16px; height:16px; }
+
+  /* hero number */
+  .hero { margin:14px 0 4px; }
+  .hero .big { font-size:40px; font-weight:700; letter-spacing:-.01em; }
+  .hero .big small { font-size:18px; font-weight:600; color:var(--ink2); }
+  .hero .sub { font-size:14px; color:var(--ink2); margin-top:2px; }
+  .hero .sub b { color:var(--ink); }
+
+  /* chart */
+  .chart-wrap { position:relative; margin-top:8px; }
+  svg { display:block; width:100%; height:auto; }
+  .ribbon { opacity:.82; transition:opacity .12s; cursor:default; }
+  .ribbon:hover { opacity:1; }
+  #tip { position:absolute; pointer-events:none; background:var(--ink); color:#fff;
+    font-size:12px; line-height:1.5; padding:7px 10px; border-radius:8px; max-width:260px;
+    opacity:0; transition:opacity .1s; z-index:5; }
+
+  .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+  button, .btn { font-size:14px; padding:9px 16px; border-radius:9px; border:1px solid var(--line);
+    background:#fff; color:var(--ink); cursor:pointer; text-decoration:none; display:inline-block; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button:hover, .btn:hover { border-color:var(--accent); }
+
+  /* table */
+  table { border-collapse:collapse; width:100%; font-size:14px; margin-top:8px; }
+  th { text-align:left; color:var(--muted); font-weight:600; font-size:12px;
+    border-bottom:1px solid var(--grid); padding:6px 8px; }
+  td { padding:7px 8px; border-bottom:1px solid var(--grid); }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .sw { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:8px; vertical-align:baseline; }
+
+  /* content */
+  .content { max-width:820px; margin:36px auto 0; }
+  .content h2 { font-size:20px; margin:34px 0 10px; }
+  .content p, .content li { color:#3c4350; font-size:15px; }
+  .content .faq dt { font-weight:600; margin-top:14px; }
+  .content .faq dd { margin:4px 0 0; color:var(--ink2); }
+  .content a { color:var(--accent); }
+  .note { font-size:12px; color:var(--muted); margin-top:10px; }
+  footer { text-align:center; color:var(--ink2); font-size:13px; padding:26px 16px;
+    border-top:1px solid var(--grid); margin-top:40px; }
+  footer a { color:var(--accent); }
+  @media (max-width:640px){
+    .hero .big { font-size:30px; }
+    main { padding:16px 10px 40px; }
+    .card { padding:12px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="./">給与解剖</a></h1>
+  <nav class="gnav">
+    <a href="assumptions.html">計算の前提</a>
+    <a href="privacy.html">プライバシー</a>
+  </nav>
+</header>
+
+<main>
+  <p class="lead"><b>あなたの給料はどこへ消えるのか。</b>年収を入れると、手取り・税金・社会保険料への分解を1枚の図にします。「会社負担も見る」をONにすると、給与明細には載らない<b>会社が払っている社会保険料</b>まで含めた本当のコストが見えます。</p>
+
+  <div class="card">
+    <div class="controls">
+      <div class="field">
+        <label for="income">額面年収</label>
+        <input type="range" id="incomeR" min="1000000" max="20000000" step="100000" value="5000000">
+        <input type="number" id="income" min="0" step="10" value="500"><span style="font-size:13px;color:var(--ink2)">万円</span>
+      </div>
+      <label class="toggle"><input type="checkbox" id="over40"> 40歳以上(介護保険料あり)</label>
+      <label class="toggle"><input type="checkbox" id="emp"> <b>会社負担も見る</b></label>
+    </div>
+
+    <div class="hero">
+      <div class="big" id="heroMain"></div>
+      <div class="sub" id="heroSub"></div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="sankey" viewBox="0 0 960 560" role="img" aria-labelledby="svgTitle">
+        <title id="svgTitle">給与の分解サンキー図</title>
+      </svg>
+      <div id="tip"></div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="saveImg">シェア用画像を保存</button>
+      <a class="btn" id="shareX" href="#" target="_blank" rel="noopener">Xでシェア</a>
+    </div>
+
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;font-size:13px;color:var(--ink2)">内訳を表で見る</summary>
+      <table id="tbl" aria-label="内訳の表">
+        <thead><tr><th>項目</th><th style="text-align:right">金額</th><th style="text-align:right">割合</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </details>
+    <p class="note">※ 2025年度(令和7年度)の税制・保険料率に基づく概算です(東京都・協会けんぽ・40歳未満・扶養なし・賞与なしを既定とした簡略計算)。根拠と前提は<a href="assumptions.html">計算の前提</a>をご覧ください。個別の税務相談に代わるものではありません。</p>
+  </div>
+
+  <section class="content">
+    <h2>この図の読み方</h2>
+    <p>左の棒があなたの「額面年収」(会社負担ONのときは「会社が払う総額」)、右がその行き先です。緑(<span class="sw" style="background:var(--c-tedori)"></span>手取り)以外は、すべて国・自治体・保険制度へ流れるお金です。</p>
+    <ul>
+      <li><b>社会保険料は労使折半</b> — 給与明細で引かれている厚生年金・健康保険とほぼ同額を、会社も別に払っています。これは明細のどこにも載りません。</li>
+      <li><b>「会社が払う総額」があなたの本当の人件費</b> — 会社から見ると、額面600万円の社員には社会保険の会社負担を含めて約690万円かかっています。</li>
+      <li><b>所得税より社会保険料のほうがずっと重い</b> — 年収500万円なら所得税は約12万円、社会保険料(本人分)は約73万円。負担感の正体はこちらです。</li>
+    </ul>
+
+    <h2>なぜ「会社負担」を見るべきなのか</h2>
+    <p>厚生年金18.3%・健康保険約10%という保険料率は労使折半なので、本人の明細には半分しか現れません。しかし経済学的には会社負担分も人件費の一部 — つまり<b>あなたの労働の対価から払われているお金</b>です。会社負担を含めた総額を分母にすると、手取りの割合は額面ベースよりさらに10ポイント近く下がります。この「見えない負担」を一目で見られるようにしたのがこのツールです。</p>
+
+    <h2>よくある質問</h2>
+    <dl class="faq">
+      <dt>計算は正確ですか?</dt>
+      <dd>2025年度の公表料率・税制(基礎控除・給与所得控除の改正後)に基づく概算です。標準報酬月額の等級や各種控除(配偶者・生命保険料など)、住民税の地域差は簡略化しています。すべての前提は<a href="assumptions.html">計算の前提</a>に明記しています。</dd>
+      <dt>入力した年収は送信されますか?</dt>
+      <dd>いいえ。計算はすべてブラウザ内で行われ、入力値がサーバーに送信されることはありません。</dd>
+      <dt>賞与(ボーナス)がある場合は?</dt>
+      <dd>本ツールは年収を12等分した月給として扱います。賞与の社会保険料には別の上限があるため、賞与比率が大きい場合は実際と数万円単位でずれることがあります。</dd>
+      <dt>個人事業主・フリーランスにも使えますか?</dt>
+      <dd>本ツールは会社員(厚生年金・健康保険の被保険者)向けです。国民健康保険・国民年金は仕組みが異なります。</dd>
+    </dl>
+  </section>
+</main>
+
+<footer>
+  <a href="assumptions.html">計算の前提と根拠</a> ・
+  <a href="privacy.html">プライバシーポリシー・免責・お問い合わせ</a><br>
+  作者 <a href="https://x.com/ReactYuto" target="_blank" rel="noopener">@ReactYuto</a> ・
+  <a href="https://github.com/yutoAb/kyuyo-kaibou" target="_blank" rel="noopener">GitHub</a> ・
+  姉妹ツール <a href="https://flow-arrow.com/" target="_blank" rel="noopener">FlowArrow</a>
+</footer>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"給与解剖","url":"https://yutoab.github.io/kyuyo-kaibou/","description":"年収から手取り・税金・社会保険料・会社負担をサンキー図で可視化する無料ツール。","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"ja","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}
+</script>
+
+<script>
+// ---- 2025年度(令和7年度)概算パラメータ。根拠は assumptions.html ----
+const R = {
+  kenpo: 0.0991,        // 協会けんぽ東京 健康保険率(労使計)
+  kaigo: 0.0159,        // 介護保険料率(40〜64歳, 労使計)
+  kosei: 0.183,         // 厚生年金(労使計)
+  koyoWorker: 0.0055,   // 雇用保険 本人負担
+  koyoEmp: 0.009,       // 雇用保険 会社負担(その他事業 ※端数簡略)
+  rosai: 0.003,         // 労災保険(全額会社・その他各種事業)
+  kodomo: 0.0036,       // 子ども・子育て拠出金(全額会社)
+  kenpoCapM: 1390000,   // 健保 標準報酬月額上限
+  koseiCapM: 650000,    // 厚年 標準報酬月額上限
+};
+
+function calc(annual, over40){
+  const m = annual / 12;
+  const kenpoBase = Math.min(m, R.kenpoCapM) * 12;
+  const koseiBase = Math.min(m, R.koseiCapM) * 12;
+  const kenpo = kenpoBase * (R.kenpo + (over40 ? R.kaigo : 0)) / 2;
+  const kosei = koseiBase * R.kosei / 2;
+  const koyo  = annual * R.koyoWorker;
+  const shaho = kenpo + kosei + koyo;
+
+  // 給与所得控除(令和7年分以降)
+  let kk;
+  if (annual <= 1900000) kk = 650000;
+  else if (annual <= 3600000) kk = annual * .3 + 80000;
+  else if (annual <= 6600000) kk = annual * .2 + 440000;
+  else if (annual <= 8500000) kk = annual * .1 + 1100000;
+  else kk = 1950000;
+  const shotoku = Math.max(0, annual - kk);
+
+  // 基礎控除(令和7・8年分の上乗せ特例込み)
+  let kiso;
+  if (shotoku <= 1320000) kiso = 950000;
+  else if (shotoku <= 3360000) kiso = 880000;
+  else if (shotoku <= 4890000) kiso = 680000;
+  else if (shotoku <= 6550000) kiso = 630000;
+  else if (shotoku <= 23500000) kiso = 580000;
+  else kiso = 0;
+
+  const kazei = Math.max(0, Math.floor((shotoku - shaho - kiso) / 1000) * 1000);
+  const br = [[1950000,.05,0],[3300000,.10,97500],[6950000,.20,427500],[9000000,.23,636000],
+              [18000000,.33,1536000],[40000000,.40,2796000],[Infinity,.45,4796000]];
+  let it = 0;
+  for (const [lim, rate, ded] of br) if (kazei <= lim) { it = kazei * rate - ded; break; }
+  const shotokuzei = Math.floor(it * 1.021 / 100) * 100;   // 復興特別所得税込み
+
+  const jKazei = Math.max(0, Math.floor((shotoku - shaho - 430000) / 1000) * 1000);
+  const jumin = jKazei > 0 ? Math.max(0, jKazei * .10 - 2500) + 5000 : 0;  // 所得割-調整控除+均等割(森林環境税込)
+
+  const tedori = annual - shaho - shotokuzei - jumin;
+
+  const empSocial = kenpoBase * (R.kenpo + (over40 ? R.kaigo : 0)) / 2
+                  + koseiBase * R.kosei / 2
+                  + annual * (R.koyoEmp + R.rosai) + koseiBase * R.kodomo;
+
+  return { annual, kenpo, kosei, koyo, shaho, shotokuzei, jumin, tedori,
+           empSocial, total: annual + empSocial };
+}
+
+// ---- 表示 ----
+const COLORS = {
+  emp:'#4a3aa7', sotax:'#eb6834', pension:'#2a78d6', jumin:'#e87ba4',
+  health:'#008300', koyo:'#eda100', tedori:'#1baf7a'
+};
+const man = v => (v/10000).toLocaleString('ja-JP', {maximumFractionDigits:1});
+const pct = (v,t) => (v/t*100).toFixed(1) + '%';
+
+const $ = id => document.getElementById(id);
+const svg = $('sankey'), tip = $('tip');
+let state = { income: 5000000, over40:false, emp:false };
+
+function rows(d){
+  const r = [
+    { k:'sotax',  name:'所得税',           v:d.shotokuzei, note:'復興特別所得税(2.1%上乗せ)込み。社会保険料控除・基礎控除を引いた課税所得に累進税率を適用。' },
+    { k:'pension',name:'厚生年金',         v:d.kosei,      note:'保険料率18.3%の本人負担分(9.15%)。同額を会社も負担しています。' },
+    { k:'jumin',  name:'住民税',           v:d.jumin,      note:'所得割10%+均等割(森林環境税込み5,000円)の概算。翌年度に課税されます。' },
+    { k:'health', name:'健康保険' + (state.over40?'・介護':''), v:d.kenpo, note:'協会けんぽ(東京)の本人負担分。同額を会社も負担しています。' },
+    { k:'koyo',   name:'雇用保険',         v:d.koyo,       note:'本人負担0.55%。会社はさらに0.9%+労災保険料を負担しています。' },
+    { k:'tedori', name:'手取り',           v:d.tedori,     note:'実際に振り込まれる金額(年間)。' },
+  ];
+  if (state.emp) r.unshift({ k:'emp', name:'会社負担の社会保険料', v:d.empSocial,
+    note:'健康保険・厚生年金の会社負担分+雇用保険(会社分)+労災保険+子ども・子育て拠出金。給与明細には載りませんが、あなたの雇用に対して支払われています。' });
+  return r;
+}
+
+function render(){
+  const d = calc(state.income, state.over40);
+  const rs = rows(d);
+  const total = state.emp ? d.total : d.annual;
+
+  // hero
+  $('heroMain').innerHTML = `手取り ${man(d.tedori)}万円 <small>(額面の${pct(d.tedori, d.annual)})</small>`;
+  $('heroSub').innerHTML = state.emp
+    ? `会社が払う総額は <b>${man(d.total)}万円</b>。あなたに届くのはその <b>${pct(d.tedori, d.total)}</b> です。`
+    : `所得税 ${man(d.shotokuzei)}万円 ・ 住民税 ${man(d.jumin)}万円 ・ 社会保険料 ${man(d.shaho)}万円。「会社負担も見る」をONにすると、本当のコストが見えます。`;
+
+  // sankey: 左は密なスタック1本、右は間隔を空けたノード群。高さは共通スケール
+  // 狭い画面ではviewBoxを狭めて相対的に文字を大きくし、ラベルを2行にする
+  const compact = matchMedia('(max-width:640px)').matches;
+  const W = compact ? 560 : 960, H=560, padT=34, padB=14, plotH=H-padT-padB;
+  const x0 = compact ? 10 : 52, bw=16, x1 = compact ? 330 : 640, lGap=3, rGap = compact ? 20 : 14;
+  const fs = compact ? 15.5 : 13;
+  const n = rs.length;
+  const scale = (plotH - rGap*(n-1)) / total;
+  const heights = rs.map(r => Math.max(2.5, r.v*scale));
+  const sumH = heights.reduce((a,b)=>a+b,0);
+  let ly = padT + Math.max(0, (plotH - (sumH + lGap*(n-1))) / 2);
+  let ry = padT + Math.max(0, (plotH - (sumH + rGap*(n-1))) / 2);
+  let out = `<text x="${x0}" y="${Math.max(18, ly-12)}" font-size="${fs}" font-weight="700" fill="#0b0b0b" text-anchor="start">${state.emp?'会社が払う総額':'額面年収'} ${man(total)}万円</text>`;
+  const mx = (x0+bw+x1)/2;
+  rs.forEach((r,i)=>{
+    const h = heights[i];
+    const c = COLORS[r.k];
+    out += `<rect x="${x0}" y="${ly}" width="${bw}" height="${h}" fill="${c}" rx="2"></rect>`;
+    out += `<path class="ribbon" data-k="${r.k}" fill="${c}" d="M${x0+bw},${ly} C${mx},${ly} ${mx},${ry} ${x1},${ry} L${x1},${ry+h} C${mx},${ry+h} ${mx},${ly+h} ${x0+bw},${ly+h} Z"></path>`;
+    out += `<rect x="${x1}" y="${ry}" width="${bw}" height="${h}" fill="${c}" rx="2"></rect>`;
+    const cy = ry + h/2;
+    if (compact) {
+      const labelY = Math.max(padT+6, Math.min(H-8, cy+5));
+      const short = r.k==='emp' ? '会社の社保負担' : r.name;
+      out += `<text x="${x1+bw+8}" y="${labelY}" font-size="${fs}" fill="#0b0b0b"><tspan font-weight="700">${short}</tspan> <tspan fill="#52514e">${man(r.v)}万</tspan></text>`;
+    } else {
+      const labelY = Math.max(padT+6, Math.min(H-8, cy+4));
+      out += `<text x="${x1+bw+10}" y="${labelY}" font-size="${fs}" fill="#0b0b0b"><tspan font-weight="700">${r.name}</tspan>　<tspan fill="#52514e">${man(r.v)}万円 (${pct(r.v,total)})</tspan></text>`;
+    }
+    ly += h + lGap; ry += h + rGap;
+  });
+  svg.innerHTML = `<title id="svgTitle">給与の分解サンキー図</title>` + out;
+
+  // tooltips
+  svg.querySelectorAll('.ribbon').forEach(p=>{
+    const r = rs.find(x=>x.k===p.dataset.k);
+    p.addEventListener('mousemove', e=>{
+      const box = svg.parentElement.getBoundingClientRect();
+      tip.style.opacity = 1;
+      tip.style.left = Math.min(box.width-270, e.clientX-box.left+14) + 'px';
+      tip.style.top  = (e.clientY-box.top+14) + 'px';
+      tip.innerHTML = `<b>${r.name}: ${man(r.v)}万円</b><br>${r.note}`;
+    });
+    p.addEventListener('mouseleave', ()=> tip.style.opacity = 0);
+  });
+
+  // table
+  $('tbl').querySelector('tbody').innerHTML = rs.map(r=>
+    `<tr><td><span class="sw" style="background:${COLORS[r.k]}"></span>${r.name}</td>`+
+    `<td class="num">${man(r.v)}万円</td><td class="num">${pct(r.v,total)}</td></tr>`).join('') +
+    `<tr><td><b>合計</b></td><td class="num"><b>${man(total)}万円</b></td><td class="num">100%</td></tr>`;
+
+  // share link
+  const text = state.emp
+    ? `額面${man(d.annual)}万円の給料、会社が払う総額は${man(d.total)}万円。手取りはその${pct(d.tedori,d.total)}の${man(d.tedori)}万円でした。 #給与解剖`
+    : `額面${man(d.annual)}万円の給料を解剖したら、手取りは${man(d.tedori)}万円(${pct(d.tedori,d.annual)})でした。 #給与解剖`;
+  $('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) +
+    '&url=' + encodeURIComponent('https://yutoab.github.io/kyuyo-kaibou/');
+  return d;
+}
+
+// ---- シェア画像(1200x630) ----
+$('saveImg').onclick = ()=>{
+  const d = calc(state.income, state.over40);
+  const rs = rows(d);
+  const total = state.emp ? d.total : d.annual;
+  const cv = document.createElement('canvas'); cv.width=1200; cv.height=630;
+  const c = cv.getContext('2d');
+  c.fillStyle='#fcfcfb'; c.fillRect(0,0,1200,630);
+  c.fillStyle='#0b0b0b'; c.font='700 44px system-ui,sans-serif';
+  c.fillText(`額面${man(d.annual)}万円を解剖した結果`, 60, 90);
+  c.font='600 30px system-ui,sans-serif'; c.fillStyle='#52514e';
+  c.fillText(state.emp ? `会社が払う総額 ${man(total)}万円 → 手取り ${man(d.tedori)}万円 (${pct(d.tedori,total)})`
+                       : `手取り ${man(d.tedori)}万円 (額面の${pct(d.tedori,d.annual)})`, 60, 140);
+  // stacked bar
+  const bx=60, by=200, bwid=1080, bh=120; let x=bx;
+  rs.forEach(r=>{
+    const w = r.v/total*bwid;
+    c.fillStyle=COLORS[r.k]; c.fillRect(x, by, Math.max(2,w-3), bh);
+    x += w;
+  });
+  // legend
+  c.font='500 22px system-ui,sans-serif'; let lx=60, lyy=390;
+  rs.forEach(r=>{
+    const label = `${r.name} ${man(r.v)}万円`;
+    const w = c.measureText(label).width + 46;
+    if (lx + w > 1140){ lx = 60; lyy += 44; }
+    c.fillStyle=COLORS[r.k]; c.fillRect(lx, lyy-18, 20, 20);
+    c.fillStyle='#0b0b0b'; c.fillText(label, lx+28, lyy);
+    lx += w;
+  });
+  c.fillStyle='#898781'; c.font='500 24px system-ui,sans-serif';
+  c.fillText('給与解剖 — yutoab.github.io/kyuyo-kaibou', 60, 590);
+  const a=document.createElement('a');
+  a.href=cv.toDataURL('image/png'); a.download='kyuyo-kaibou.png'; a.click();
+};
+
+// ---- controls ----
+function syncFromRange(){ state.income = +$('incomeR').value; $('income').value = state.income/10000; render(); }
+$('incomeR').addEventListener('input', syncFromRange);
+$('income').addEventListener('change', ()=>{
+  const v = Math.max(0, +$('income').value) * 10000;
+  state.income = v; $('incomeR').value = Math.min(20000000, Math.max(1000000, v)); render();
+});
+$('over40').addEventListener('change', e=>{ state.over40 = e.target.checked; render(); });
+$('emp').addEventListener('change', e=>{ state.emp = e.target.checked; render(); });
+matchMedia('(max-width:640px)').addEventListener('change', render);
+render();
+</script>
+</body>
+</html>

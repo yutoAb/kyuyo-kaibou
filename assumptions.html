@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>計算の前提と根拠｜給与解剖</title>
+<meta name="description" content="給与解剖の計算に使用している2025年度(令和7年度)の税率・社会保険料率・控除額の一覧と、その出典・簡略化している点をすべて公開しています。" />
+<link rel="canonical" href="https://yutoab.github.io/kyuyo-kaibou/assumptions.html" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<style>
+  :root { color-scheme:light; --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e;
+    --muted:#898781; --grid:#e1e0d9; --line:#c3c2b7; --accent:#2a78d6; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Segoe UI",sans-serif; line-height:1.8; }
+  header { display:flex; align-items:center; gap:12px; padding:14px 20px;
+    border-bottom:1px solid var(--grid); background:var(--surface); }
+  header h1 { font-size:18px; margin:0; }
+  header h1 a { color:var(--ink); text-decoration:none; }
+  .gnav { margin-left:auto; display:flex; gap:16px; font-size:13px; }
+  .gnav a { color:var(--ink2); text-decoration:none; }
+  .gnav a:hover { color:var(--accent); }
+  main { max-width:820px; margin:0 auto; padding:28px 16px 56px; }
+  h2 { font-size:20px; margin:34px 0 10px; }
+  h3 { font-size:16px; margin:24px 0 6px; }
+  p, li { font-size:15px; color:#3c4350; }
+  table { border-collapse:collapse; width:100%; font-size:14px; margin:10px 0; }
+  th { text-align:left; color:var(--muted); font-size:12px; border-bottom:1px solid var(--grid); padding:6px 8px; }
+  td { padding:6px 8px; border-bottom:1px solid var(--grid); }
+  a { color:var(--accent); }
+  .warn { background:var(--surface); border:1px solid var(--grid); border-left:4px solid var(--accent);
+    border-radius:8px; padding:12px 16px; font-size:14px; }
+  footer { text-align:center; color:var(--ink2); font-size:13px; padding:26px 16px;
+    border-top:1px solid var(--grid); margin-top:40px; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="./">給与解剖</a></h1>
+  <nav class="gnav">
+    <a href="assumptions.html">計算の前提</a>
+    <a href="privacy.html">プライバシー</a>
+  </nav>
+</header>
+<main>
+  <h1 style="font-size:24px">計算の前提と根拠</h1>
+  <p>給与解剖の計算はすべてこのページの前提に基づく<b>概算</b>です。透明性のため、使用している率・控除・簡略化している点をすべて公開します。誤りの指摘は<a href="privacy.html">お問い合わせ</a>からお願いします。</p>
+
+  <div class="warn">本ツールは一般的な制度の仕組みを可視化する教育目的のシミュレーションであり、個別の税務相談・税務申告の助言に代わるものではありません。個別の事情に基づく判断は税理士等の専門家にご相談ください。</div>
+
+  <h2>社会保険料(2025年度・令和7年度)</h2>
+  <table>
+    <thead><tr><th>項目</th><th>率(労使計)</th><th>本人負担</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr><td>健康保険</td><td>9.91%</td><td>4.955%</td><td>協会けんぽ・東京都。都道府県により9.4〜10.8%程度の幅あり</td></tr>
+      <tr><td>介護保険(40〜64歳)</td><td>1.59%</td><td>0.795%</td><td>「40歳以上」トグルON時のみ加算</td></tr>
+      <tr><td>厚生年金</td><td>18.3%</td><td>9.15%</td><td>全国一律</td></tr>
+      <tr><td>雇用保険</td><td>—</td><td>0.55%</td><td>会社負担は0.9%として計算(一般の事業)</td></tr>
+      <tr><td>労災保険</td><td>0.3%</td><td>0%(全額会社)</td><td>「その他の各種事業」の率。業種で0.25〜8.8%の幅あり</td></tr>
+      <tr><td>子ども・子育て拠出金</td><td>0.36%</td><td>0%(全額会社)</td><td>厚生年金の標準報酬に対して会社が全額負担</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>標準報酬月額の上限: 健康保険 139万円 / 厚生年金 65万円(上限超過分には保険料がかかりません)</li>
+    <li>標準報酬月額の<b>等級表は使わず、月給の実額で近似</b>しています(誤差は概ね月数百円〜千円程度)</li>
+    <li>賞与は考慮せず、<b>年収を12等分した月給</b>として扱います(賞与には別途の上限があるため、賞与比率が高いと実際より保険料が多めに出ます)</li>
+  </ul>
+
+  <h2>所得税(2025年分・令和7年分以降の改正後)</h2>
+  <ul>
+    <li>給与所得控除: 最低65万円(年収190万円以下) / 190万超〜360万: 収入×30%+8万 / 〜660万: ×20%+44万 / 〜850万: ×10%+110万 / 850万超: 195万円</li>
+    <li>基礎控除(令和7・8年分の上乗せ特例込み): 合計所得132万円以下 95万円 / 〜336万円 88万円 / 〜489万円 68万円 / 〜655万円 63万円 / 〜2,350万円 58万円</li>
+    <li>所得控除は<b>社会保険料控除と基礎控除のみ</b>(配偶者控除・扶養控除・生命保険料控除・iDeCo等は未考慮)</li>
+    <li>課税所得に超過累進税率(5〜45%)を適用し、復興特別所得税(2.1%)を上乗せ</li>
+    <li>定額減税などの時限措置は反映していません</li>
+  </ul>
+
+  <h2>住民税</h2>
+  <ul>
+    <li>所得割10%(市町村民税+道府県民税)、基礎控除43万円</li>
+    <li>調整控除2,500円を一律控除、均等割は森林環境税を含め5,000円</li>
+    <li>本来は前年所得に対して翌年度課税ですが、<b>当年の所得に対する額として表示</b>しています</li>
+    <li>非課税限度額の判定は簡略化しています(課税所得が0なら0円)</li>
+  </ul>
+
+  <h2>出典</h2>
+  <ul>
+    <li>国税庁 タックスアンサー「<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank" rel="noopener">給与所得控除</a>」「<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank" rel="noopener">所得税の税率</a>」「<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank" rel="noopener">基礎控除</a>」</li>
+    <li><a href="https://www.kyoukaikenpo.or.jp/" target="_blank" rel="noopener">全国健康保険協会(協会けんぽ)</a> 令和7年度保険料額表(東京都)</li>
+    <li><a href="https://www.nenkin.go.jp/" target="_blank" rel="noopener">日本年金機構</a> 厚生年金保険料率</li>
+    <li><a href="https://www.mhlw.go.jp/" target="_blank" rel="noopener">厚生労働省</a> 雇用保険料率・労災保険料率</li>
+  </ul>
+
+  <h2>監修について</h2>
+  <p>本ページの計算ロジックは公開情報に基づいて実装し、会計専門家によるレビューを受ける予定です。レビュー状況はこのページで更新します。</p>
+</main>
+<footer>
+  <a href="./">ツールに戻る</a> ・
+  <a href="privacy.html">プライバシーポリシー・免責・お問い合わせ</a><br>
+  作者 <a href="https://x.com/ReactYuto" target="_blank" rel="noopener">@ReactYuto</a>
+</footer>
+</body>
+</html>
